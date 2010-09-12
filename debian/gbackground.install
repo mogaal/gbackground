@@ -1,0 +1,4 @@
+gbackground usr/bin
+gbackgroundD usr/share/gbackground
+glade/gbackground.glade usr/share/gbackground 
+icon/config-xfree.xpm usr/share/pixmaps 
