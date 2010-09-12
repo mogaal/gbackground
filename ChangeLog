@@ -1,0 +1,23 @@
+2010-09-12  Alejandro Garrido Mota <garridomota@gmail.com>
+	
+		* Add a configuration file using YAML (Thanks to Gunnar
+		  Wolf <gwolf@gwolf.org>)
+		* Fix permissions over hidden world-writable directory
+		  in user's home
+
+2009-08-25  Alejandro Garrido Mota <garridomota@gmail.com>
+	
+	* English translation in source code, Thanks Jakub Lucký
+
+2005-12-18  Alejandro Garrido Mota <garridomota@gmail.com>
+	
+	* Add a 'keep the last background' function
+
+	* Add 'Background Options' property
+
+	* Released 1.1.0
+
+2005-08-22  Alejandro Garrido Mota <garridomota@gmail.com>
+
+	* Released 1.0.0: Initial version 
+

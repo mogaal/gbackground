@@ -1,0 +1,201 @@
+#!/usr/bin/perl
+use strict;
+use Gtk2 -init;
+use Gtk2::GladeXML;
+use UI::Dialog;
+use UI::Dialog::Backend::Zenity;
+use Switch;
+use YAML;
+
+## Variables Declaration
+
+my($config, $program, $main_window, $exit_button, $label_number_of_seconds, $label_status, $about_window, $about, $preferences_window, $filechooserbutton, $file_choose);
+
+my(@status, $path, $last_background);
+my $path = "$ENV{HOME}/.gbackground";
+my $configfile = "$path/gbackground.yml";
+
+## From Preferences window
+my($return_value_widget, $type_of_change_widget);
+
+load_config();
+&trash;
+
+## Loading from UI::Dialog
+my $window_dialogs = new UI::Dialog::Backend::Zenity(title => "Gbackground",
+						       height => 45, width => 50, 
+						       listheight => 5,
+						       order => [ 'zenity', 'xdialog', 'gdialog']
+						       );
+
+# Loading a window
+
+if (-e 'glade/gbackground.glade'){
+	$program = Gtk2::GladeXML->new('glade/gbackground.glade');
+} else {
+	$program = Gtk2::GladeXML->new('/usr/share/gbackground/gbackground.glade');
+}
+
+# Window loading
+
+&load_widgets;
+
+# Signals
+$program->signal_autoconnect_from_package('main');
+
+## Changes check
+
+&check_status;
+
+Gtk2->main;
+
+END {
+    save_config();
+}
+
+## Subroutines ##
+sub config_defaults {
+    return { seconds => 5,
+	     bg_dir => '/usr/share/backgrounds',
+	     keep_last_bg => 1,
+	     # bg_options:
+	     # 0 => scaled, 1 => stretched, 2 => wallpaper, 3 => centered
+	     # (hard-coded in gbackground.glade)
+	     bg_options => 1, 
+	     pid => "$path/gbackground.pid"
+    };
+}
+
+sub load_config {
+    my ($defaults);
+    mkdir($path, 0755) unless -d $path;
+    $defaults = &config_defaults;
+    if (-e $configfile) {
+	$config = YAML::LoadFile($configfile);
+	# Use default values for whatever has not been specified
+	map( { $config->{$_} = $defaults->{$_} unless defined $config->{$_} }
+	     keys(%$defaults) );
+    } else {
+	$config = $defaults;
+    }
+}
+
+sub save_config {
+    my $file;
+    return undef unless $config;
+    mkdir($path, 0755) unless -d $path;
+    YAML::DumpFile($configfile, $config);
+}
+
+sub trash {
+	@status = ("<span foreground=\"blue\">Running</span>", "<span foreground=\"red\">Stopped</span>");
+}
+sub load_widgets {
+	$main_window = $program->get_widget('main_window');
+	$preferences_window = $program->get_widget('preferences_window');
+	$label_number_of_seconds = $program->get_widget('select_seconds');
+	$label_status = $program->get_widget('label_program_status');
+	$about_window = $program->get_widget('about_window');
+	$about = $program->get_widget('about_window');
+	$return_value_widget = $program->get_widget('keep_last_bground_combobox');
+	$type_of_change_widget = $program->get_widget('background_options_select');
+	$filechooserbutton = $program->get_widget('filechooserbutton');
+	# Set values from configuration
+	$label_number_of_seconds->set_text($config->{seconds});
+	$filechooserbutton->set_current_folder($config->{bg_dir});
+	$return_value_widget->set_active($config->{keep_last_bg});
+	$type_of_change_widget->set_active($config->{bg_options});
+}
+
+# Returns the PID if it is running, undef otherwise
+sub is_running {
+    my ($fh, $pid);
+    return undef if ! -e $config->{pid};
+    open($fh, '<', $config->{pid});
+    $pid = $fh->getline;
+    chomp $pid;
+    # We assume to have a working /proc
+    return (-d "/proc/$pid") ? $pid : undef;
+}
+
+sub check_status {
+	if(is_running()){
+	        $label_status->set_markup("@status[0]");
+	}else{
+	        $label_status->set_markup("@status[1]");
+	}
+}
+
+sub on_start_button_event {
+	$config->{bg_dir} = $filechooserbutton->get_filename;
+	$last_background = `gconftool-2 --get /desktop/gnome/background/picture_filename`;
+	$last_background =~ s/\s/\\ /g;
+	if(is_running()){
+		$window_dialogs->error(title => 'Error!!', text => 'Gbackground <b>is already</b> working');
+		}
+	else{
+		if(-e $config->{bg_dir}){
+			$config->{seconds} = $label_number_of_seconds->get_text();
+			$config->{bg_dir} =~ s/\s/\\ /g;
+			if(-e './gbackgroundD'){
+				system("perl ./gbackgroundD \"$config->{bg_dir}\" $config->{seconds} $config->{bg_options} \&");
+			} else {
+				system("perl /usr/share/gbackground/gbackgroundD \"$config->{bg_dir}\" $config->{seconds} $config->{bg_options} \&");
+			}
+			
+			sleep 1; # Esto es por que muchas veces tarda en crear el gbackground.pid
+			$label_status->set_markup("@status[0]") if(is_running());
+			$window_dialogs->msgbox(title => "Daemon Gbackground", text => 'Gbackground has started <b>successfully</b>');	
+		}
+		else{
+			$window_dialogs->error(title => "Error, dir doesn't exist", text => 'The directory that you introduced <b>is not valid</b>, please verify it and try again');	
+		}
+	}
+	save_config();
+}
+sub on_stop_button_event {
+	if(my $pid = is_running()){
+		system("kill -9 $pid");
+		unlink($config->{pid});
+		if($config->{keep_last_bg} == 1){
+				system("gconftool-2 -t str -s /desktop/gnome/background/picture_filename $last_background");
+		}
+		$window_dialogs->msgbox(title => "Daemon Gbackground", text => 'Gbackground has been <b>stopped</b> successfully'); 
+		$window_dialogs->error(title => 'Error!!', text => 'Error, it was not possible to stop Gbackground. Probably because it <b>is not</b> running') if(is_running());
+	}else{
+		$window_dialogs->error(title => 'Error!!', text => 'Gbackground <b>is not</b> running');	
+	}
+	&check_status;
+}
+
+sub on_preferences_accept_button_event {
+	$config->{keep_last_bg} = $return_value_widget->get_active;
+	$config->{bg_options} = $type_of_change_widget->get_active_text();
+	$preferences_window->hide;
+}
+
+## Para que cuando cierren las ventanas y las vuelvan a abrir no desaparezcan??
+sub on_about_delete_event {
+    my $w = shift;
+    $w->hide;
+    1; 
+}
+
+sub on_preferences_delete_event {
+    my $w = shift;
+    $w->hide;
+    1; 
+}
+
+sub on_main_window_delete_event {Gtk2->main_quit;}
+sub on_exit_menu_event {Gtk2->main_quit;}
+sub on_quit_event {Gtk2->main_quit;}
+sub on_quit_button_event {Gtk2->main_quit;}
+sub on_about_menu_event {$about->present;}
+sub on_preferences_event {
+	my $value = $type_of_change_widget->set_active($config->{bg_options});
+	$preferences_window->show_all;
+}
+sub on_preferences_cancel_button_event {$preferences_window->hide;}
+sub on_about_close_button_event {$about->hide;}
+sub on_about_response_event { $about->hide;}

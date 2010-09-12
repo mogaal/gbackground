@@ -1,0 +1,42 @@
+#!/usr/bin/perl
+use strict;
+use Proc::PID::File;
+
+my ($fondo_path, $segundos , @archivos_png, @archivos_jpg, @TODOS_ARCHIVOS, $background, $configurando_pid, $tipo_de_cambio);
+my $home_directory = $ENV{HOME};
+my $path = $home_directory . '/.gbackground';
+
+sub crear_demonio {
+	$configurando_pid = Proc::PID::File->running(dir => "$path", name => "gbackground" );
+	while(1){
+		system("gconftool-2 -t str -s /desktop/gnome/background/picture_options $tipo_de_cambio");
+		$background = $TODOS_ARCHIVOS[rand(scalar(@TODOS_ARCHIVOS))];
+		system("gconftool-2 -t str -s /desktop/gnome/background/picture_filename \"$background\"");
+		sleep($segundos);
+	}
+}
+
+$fondo_path = "$ARGV[0]";
+$segundos = $ARGV[1];
+$tipo_de_cambio = $ARGV[2];
+
+$segundos = '2' if $segundos eq '';
+
+foreach (@archivos_jpg = glob("$fondo_path/*\.jpg")){
+	push @TODOS_ARCHIVOS, $_;
+}
+
+foreach (@archivos_png = glob("$fondo_path/*\.png")) {
+	push @TODOS_ARCHIVOS, $_;
+}
+
+
+if(-e "$path") {
+	&crear_demonio;
+}
+else {
+	mkdir("$path", 0755);
+	chmod(0755, "$path");
+	&crear_demonio;
+}
+

@@ -1,0 +1,14 @@
+			GBACKGROUND
+
+How use?
+
+If you want to use gbackground you should run gbackground script. For 
+this exist two ways:
+
+$ ./gbackground
+
+or:
+
+$ perl gbackground
+
+This program was developed in Perl using Gtk2
