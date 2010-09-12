@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=gbackground
+GenericName=Gbackground
+Comment=change GNOME background periodically
+Exec=gbackground
+Icon=/usr/share/pixmaps/config-xfree.xpm
+Terminal=false
+Type=Application

@@ -1,0 +1,16 @@
+Source: gbackground
+Section: gnome
+Priority: optional
+Maintainer: Alejandro Garrido Mota <garridomota@gmail.com>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.9.1
+Homepage: http://www.mogaal.com/gbackground
+
+Package: gbackground
+Architecture: all
+Depends: ${perl:Depends}, ${misc:Depends}, perl, libglib-perl, libgtk2-gladexml-perl,
+         libgtk2-perl, libproc-pid-file-perl, libui-dialog-perl, libyaml-perl
+Description: interval-based gnome background changer
+ Gbackground allows to change periodically the GNOME background
+ in intervals of a second, it uses the GNOME tools to do this. 
+ The user indicates the source directory of the images.

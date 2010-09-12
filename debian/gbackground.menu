@@ -1,0 +1,3 @@
+?package(gbackground):needs="X11" section="Screen/Locking" \
+  title="GBackground" command="/usr/bin/gbackground" \
+  icon="/usr/share/pixmaps/config-xfree.xpm"
