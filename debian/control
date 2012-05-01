@@ -14,6 +14,6 @@ Depends: ${perl:Depends}, ${misc:Depends}, perl, libglib-perl, libgtk2-gladexml-
          libgtk2-perl, libproc-pid-file-perl, libui-dialog-perl, libyaml-perl,
          libswitch-perl | perl (<< 5.10.1-13) 
 Description: interval-based gnome background changer
- Gbackground allows to change periodically the GNOME background
+ Gbackground allow to change periodically the GNOME background
  in intervals of a second, it uses the GNOME tools to do this. 
  The user indicates the source directory of the images.
