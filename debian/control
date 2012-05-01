@@ -10,10 +10,10 @@ Vcs-Browser: https://github.com/mogaal/gbackground
 
 Package: gbackground
 Architecture: all
-Depends: ${perl:Depends}, ${misc:Depends}, perl, libglib-perl, libgtk2-gladexml-perl,
+Depends: ${perl:Depends}, ${misc:Depends}, libglib-perl, libgtk2-gladexml-perl,
          libgtk2-perl, libproc-pid-file-perl, libui-dialog-perl, libyaml-perl,
          libswitch-perl | perl (<< 5.10.1-13) 
 Description: interval-based gnome background changer
- Gbackground allow to change periodically the GNOME background
+ Gbackground allows to change periodically the GNOME background
  in intervals of a second, it uses the GNOME tools to do this. 
  The user indicates the source directory of the images.

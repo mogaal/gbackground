@@ -5,10 +5,9 @@ gbackground (1.3-2) unstable; urgency=low
        - Add libswitch-perl | perl (<< 5.10.1-13) in Depends 
          field (Closes: #629334).
        - Add Vcs-Git and Vcs-Browser field.
-       - Fix spelling error in description
+       - Remove unversioned "perl" depend in 'Depends' field
   * Adapt d/copyright to copyright-format 1.0  
-  * Add patch to remove Switch module (now is un perl-core) 
-  * d/gbackground.1: fix spelling error in description.
+  * Add patch to remove Switch module (now is in perl-core) 
 
  -- Alejandro Garrido Mota <garridomota@gmail.com>  Sun, 29 Apr 2012 22:58:46 -0430
 
