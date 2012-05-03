@@ -8,6 +8,7 @@ gbackground (1.3-2) unstable; urgency=low
        - Remove unversioned "perl" depend in 'Depends' field
   * Adapt d/copyright to copyright-format 1.0  
   * Add patch to remove Switch module (now is in perl-core) 
+  * Bump years for debian/* in d/copyright
   * Add lintian-overrides file to fix two spelling warning.
 
  -- Alejandro Garrido Mota <garridomota@gmail.com>  Sun, 29 Apr 2012 22:58:46 -0430
